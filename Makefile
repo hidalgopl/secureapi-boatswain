@@ -25,12 +25,12 @@ clean:
 .PHONY: clean
 
 container: build
-	docker build  -t dev_kube/saucelabs/chef-scheduler:dev .
+	docker build  -t boatswain:dev .
 .PHONY: container
 
-publish_quay_stable: container
-	docker tag dev_kube/saucelabs/chef-scheduler:dev quay.io/saucelabs/chef-scheduler:stable
-	docker push quay.io/saucelabs/chef-scheduler:stable
+publish_docker_stable: container
+	docker tag boatswain:dev boatswain:stable
+	docker push boatswain:stable
 .PHONY: publish_quay_stable
 
 fmt:
