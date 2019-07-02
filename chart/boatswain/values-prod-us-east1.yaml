@@ -1,0 +1,16 @@
+persistence:
+  enabled: false
+
+cronjob:
+  deleteChefs:
+    enabled: true
+
+deploymentSize: regular
+
+chef:
+  dryads: "production-dryad:5640"
+
+headlesschef:
+  serviceAccount: chef
+  image:
+    tag: '87fcd29'

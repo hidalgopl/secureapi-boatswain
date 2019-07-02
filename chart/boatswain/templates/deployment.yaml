@@ -1,0 +1,59 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    owner: {{ .Values.owner }}
+spec:
+  revisionHistoryLimit: {{ .Values.historyLimit }}
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+{{ toYaml .Values.updateStrategy | indent 4 }}
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: "{{ .Values.service.port }}"
+        prometheus.io/scrape: "true"
+      labels:
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      imagePullSecrets:
+{{ toYaml .Values.image.pullSecrets | indent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: {{ .Values.image.repository }}:{{ default (.Chart.Version | replace "+" "_") .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: CHEF_IMAGE
+              value:  {{ .Values.chef.image.repo | default .Values.global.image.repository | default "quay.io/saucelabs" }}/
+                      {{- .Values.chef.image.name | default "ubuntu-chef" }}
+            - name: CHEF_TAG
+              value: "{{ .Values.chef.image.tag | default .Values.global.image.tag | default "latest" }}"
+            - name: CHEF_DRYADS
+              value: "{{ .Values.chef.dryads | default "sauce-dryad:5640" }}"
+            - name: BROWSER_SYNC_IMAGE
+              value:  {{ .Values.browser_sync.image.repo }}:
+                      {{- .Values.browser_sync.image.tag | default "latest" }}
+            - name: HEADLESS_CHEF_IMAGE
+              value:  {{ .Values.headlesschef.image.repo | default .Values.global.image.repository | default "quay.io/saucelabs" }}/
+              {{- .Values.headlesschef.image.name | default "chef-browsers-docker" }}
+            - name: HEADLESS_CHEF_TAG
+              value: "{{ .Values.headlesschef.image.tag | default .Values.global.image.tag | default "latest" }}"
+            - name: LOCAL_MODE
+              value: "{{ .Values.local }}"
+            - name: HEADLESS_CHEF_SERVICE_ACCOUNT
+              value: "{{ .Values.headlesschef.serviceAccount }}"
+            - name: X_SECUREAPI_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: boatswain-web
+                  key: authKey
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
