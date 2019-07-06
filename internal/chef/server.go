@@ -54,6 +54,7 @@ func (s *Server) start() http.HandlerFunc {
 		}
 		rsp, err := s.starter.start(r.Context(), req)
 		if err != nil {
+			log.Println(err)
 			encodeErrRsp(w, http.StatusInternalServerError, "cannot start chef")
 			return
 		}
@@ -62,12 +63,13 @@ func (s *Server) start() http.HandlerFunc {
 		body := <- rsp
 		b := new(bytes.Buffer)
 		json.NewEncoder(b).Encode(body)
-		callbackUrl := fmt.Sprintf("%s/%s", "secureapi-web.default.local.cluster./sec-test", req.TestSuiteId)
+		callbackUrl := fmt.Sprintf("%s/%s", "web-secureapi-web.default.local.cluster./sec-test", req.TestSuiteId)
 		go http.Post(
 			callbackUrl,
 			mediatypes.ApplicationJSONUtf8,
 			b,
 		)
+		json.NewEncoder(w).Encode(body)
 
 	}
 }

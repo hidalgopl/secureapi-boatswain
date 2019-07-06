@@ -7,7 +7,7 @@ global:
     repository: ''
 image:
   repository: 'boatswain'
-  tag: 'latest'
+  tag: 'dev'
   pullPolicy: IfNotPresent
   pullSecrets:
     - name: quaypull

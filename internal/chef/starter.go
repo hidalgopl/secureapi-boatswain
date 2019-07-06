@@ -2,6 +2,7 @@ package chef
 
 import (
 	"context"
+	"crypto/tls"
 	"net/http"
 )
 
@@ -29,9 +30,15 @@ func newStarter() *defaultStarter {
 }
 
 func (s *defaultStarter) start(ctx context.Context, req scheduleTestsReq) (chan TestChan, error) {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
 	resultChan := make(chan TestChan)
-	r, err := http.Get(req.Url)
+	r, err := client.Get(req.Url)
+	defer r.Body.Close()
 	if err != nil {
+		panic(err)
 		return resultChan, err
 	}
 	for  _, testCode := range req.Tests{
