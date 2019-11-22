@@ -1,7 +1,9 @@
 package status
 
+type TestStatus string
+
 const (
-	Passed = "passed"
-	Failed = "failed"
-	Error = "error"
+	Passed = TestStatus("passed")
+	Failed = TestStatus("failed")
+	Error = TestStatus("error")
 )
