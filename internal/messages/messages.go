@@ -27,5 +27,8 @@ type TestFinishedPub struct {
 }
 
 type TestSuiteFinishedPub struct {
-	Timestamp time.Time `json:"timestamp"`
+	TestSuiteID string    `json:"test_suite_id"`
+	Url         string    `json:"url"`
+	Tests       []TestFinishedPub  `json:"tests"`
+	Timestamp   time.Time `json:"timestamp"`
 }

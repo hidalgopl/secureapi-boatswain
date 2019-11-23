@@ -23,8 +23,8 @@ type Listener interface {
 
 type NatsListener struct {
 	*conn.NatsHandler
-	Subject     string
-	QueueName   string
+	Subject   string
+	QueueName string
 }
 
 func NewNatsListener(conf *config.Config) *NatsListener {
@@ -84,7 +84,7 @@ func (nh *NatsListener) HandleTestSuite(msg *messages.StartTestSuitePub) {
 	conf := config.GetConf()
 	client := &http.Client{Transport: tr}
 	logrus.Infof("creating result chan  with len: %v", len(msg.Tests))
-	resultChan := make(chan checks.TestChan, len(msg.Tests))
+	resultChan := make(chan messages.TestFinishedPub, len(msg.Tests))
 	logrus.Infof("sending http req to: %s", msg.Url)
 	r, err := client.Get(msg.Url)
 	defer r.Body.Close()
@@ -103,8 +103,10 @@ func (nh *NatsListener) HandleTestSuite(msg *messages.StartTestSuitePub) {
 
 	}
 	logrus.Info("finished scheduling tests, waiting for chan to be closed")
+	tests := []messages.TestFinishedPub{}
 	for range msg.Tests {
-		fmt.Println(<-resultChan)
+		tests = append(tests, <-resultChan)
+		//fmt.Println(<-resultChan)
 	}
 	close(resultChan)
 	finishedSubject := fmt.Sprintf("test_suite.%s.completed", testSuiteUID)
@@ -112,7 +114,10 @@ func (nh *NatsListener) HandleTestSuite(msg *messages.StartTestSuitePub) {
 	pub := publisher.NewNatsPublisher(conf, finishedSubject)
 	logrus.Info("set up a publisher")
 	finishedMsg := messages.TestSuiteFinishedPub{
-		Timestamp: time.Now(),
+		Timestamp:   time.Now(),
+		Tests:       tests,
+		TestSuiteID: testSuiteUID,
+		Url:         msg.Url,
 	}
 	logrus.Infof("created finish msg: %v", finishedMsg)
 	err = pub.Publish(finishedMsg, finishedSubject)
@@ -121,6 +126,5 @@ func (nh *NatsListener) HandleTestSuite(msg *messages.StartTestSuitePub) {
 		logrus.Error(err)
 	}
 	logrus.Info("published successfully")
-
 
 }

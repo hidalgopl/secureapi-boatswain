@@ -16,21 +16,17 @@ type TestChan struct {
 	TestCode string            `json:"test_code"`
 }
 
-func NotifyCheckFinished(testSuiteID string, testCode string, status status.TestStatus, resultChan chan TestChan, publisher publisher.Publisher) error {
-	result := TestChan{
-		Result:   status,
-		TestCode: testCode,
-	}
-	logrus.Infof("[%s] %s finished with %v, publishing results...", testSuiteID, testCode, status)
-	resultChan <- result
-	logrus.Info("Pushed info to channel")
-	finishedSubject := fmt.Sprintf("test_suite.%s.test.%s.finished", testSuiteID, testCode)
+func NotifyCheckFinished(testSuiteID string, testCode string, status status.TestStatus, resultChan chan messages.TestFinishedPub, publisher publisher.Publisher) error {
 	msg := &messages.TestFinishedPub{
 		TestSuiteID: testSuiteID,
 		Result:    status,
 		TestCode:  testCode,
 		Timestamp: time.Now(),
 	}
+	logrus.Infof("[%s] %s finished with %v, publishing results...", testSuiteID, testCode, status)
+	resultChan <- *msg
+	logrus.Info("Pushed info to channel")
+	finishedSubject := fmt.Sprintf("test_suite.%s.test.%s.finished", testSuiteID, testCode)
 	err := publisher.Publish(msg, finishedSubject)
 	if err != nil {
 		logrus.Errorf("error during publishing: %v", err)
@@ -40,7 +36,7 @@ func NotifyCheckFinished(testSuiteID string, testCode string, status status.Test
 	return nil
 }
 
-func XContentTypeOptionsNoSniff(testSuiteID string, headers http.Header, resultChan chan TestChan, publisher publisher.Publisher) error {
+func XContentTypeOptionsNoSniff(testSuiteID string, headers http.Header, resultChan chan messages.TestFinishedPub, publisher publisher.Publisher) error {
 	var Status status.TestStatus
 	testCode := "SEC#0001"
 	header := headers.Get("X-Content-Type-Options")
@@ -56,7 +52,7 @@ func XContentTypeOptionsNoSniff(testSuiteID string, headers http.Header, resultC
 	return nil
 }
 
-func XFrameOptionsDeny(testSuiteID string, headers http.Header, resultChan chan TestChan, publisher publisher.Publisher) error {
+func XFrameOptionsDeny(testSuiteID string, headers http.Header, resultChan chan messages.TestFinishedPub, publisher publisher.Publisher) error {
 	var Status status.TestStatus
 	testCode := "SEC#0002"
 	header := headers.Get("X-Frame-Options")
@@ -72,7 +68,7 @@ func XFrameOptionsDeny(testSuiteID string, headers http.Header, resultChan chan 
 	return nil
 }
 
-func XXSSProtection(testSuiteID string, headers http.Header, resultChan chan TestChan, publisher publisher.Publisher) error {
+func XXSSProtection(testSuiteID string, headers http.Header, resultChan chan messages.TestFinishedPub, publisher publisher.Publisher) error {
 	var Status status.TestStatus
 	testCode := "SEC#0003"
 	header := headers.Get("X-XSS-Protection")
@@ -88,7 +84,7 @@ func XXSSProtection(testSuiteID string, headers http.Header, resultChan chan Tes
 	return nil
 }
 
-func ContentSecurityPolicy(testSuiteID string, headers http.Header, resultChan chan TestChan, publisher publisher.Publisher) error {
+func ContentSecurityPolicy(testSuiteID string, headers http.Header, resultChan chan messages.TestFinishedPub, publisher publisher.Publisher) error {
 	var Status status.TestStatus
 	testCode := "SEC#0004"
 	header := headers.Get("Content-Security-Policy")
@@ -130,7 +126,7 @@ func ContentSecurityPolicy(testSuiteID string, headers http.Header, resultChan c
 //}
 
 var (
-	TestCodes = map[string]func(string, http.Header, chan TestChan, publisher.Publisher) error{
+	TestCodes = map[string]func(string, http.Header, chan messages.TestFinishedPub, publisher.Publisher) error{
 		"SEC#0001": XContentTypeOptionsNoSniff,
 		"SEC#0002": XFrameOptionsDeny,
 		"SEC#0003": XXSSProtection,
