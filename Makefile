@@ -25,7 +25,7 @@ clean:
 .PHONY: clean
 
 container: build
-	docker build  -t boatswain:dev .
+	docker build  -t boatswain_local . --network host
 .PHONY: container
 
 publish_docker_stable: container

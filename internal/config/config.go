@@ -6,11 +6,11 @@ import (
 )
 
 type Config struct {
-	NatsUsername       string
-	NatsUrl            string
-	NatsPass           string
-	NatsCreatedSubject string
-	NatsQueueName      string
+	NatsUsername       string `yaml: natsUsername`
+	NatsUrl            string `yaml:natsUrl`
+	NatsPass           string `yaml: natsPass`
+	NatsCreatedSubject string `yaml: natsCreatedSubject`
+	NatsQueueName      string `yaml: natsQueueName`
 }
 
 func (c *Config) PrettyPrint() string {

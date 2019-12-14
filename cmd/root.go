@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/hidalgopl/secureapi-boatswain/internal/config"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
@@ -49,8 +48,7 @@ func initConfig() {
 		fmt.Printf("unable to read config: %v\n", err)
 		os.Exit(1)
 	}
-	viper.Debug()
 	conf := config.GetConf()
-	logrus.Infof("running with config: %v", conf)
+	fmt.Printf("running with config: %v", conf)
 
 }

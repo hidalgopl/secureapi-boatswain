@@ -1,4 +1,4 @@
-FROM golang:1.12-alpine as builder
+FROM golang:1.12-alpine3.9 as builder
 
 WORKDIR /app
 COPY . .
@@ -15,11 +15,11 @@ RUN make build
 FROM alpine:3.9
 
 COPY --from=builder /app/bin/ /usr/local/bin/
+COPY --from=builder /app/config.yaml /etc/sailor/config.yaml
 
-RUN addgroup -g 1000 sauce && \
-    adduser -h /sauce -D -u 1000 -G sauce sauce && \
-    chown sauce:sauce /sauce
+RUN addgroup -g 1000 boatswain && \
+    adduser -h /boatswain -D -u 1000 -G boatswain boatswain
 
-USER sauce
+USER boatswain
 
-ENTRYPOINT ["chef-scheduler"]
+ENTRYPOINT ["/usr/local/bin/boatswain",  "run"]

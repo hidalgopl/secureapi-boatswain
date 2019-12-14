@@ -38,9 +38,9 @@ func (nh *NatsHandler) Connect() (*nats.EncodedConn, error) {
 	opts = nh.setupConnOptions(opts)
 
 	// Use Username & Password
-	userCreds := nats.UserInfo(nh.username, nh.password)
-	opts = append(opts, userCreds)
-	natsUrl := fmt.Sprintf("%s:%s@%s", nh.username, nh.password, nh.url)
+	//userCreds := nats.UserInfo(nh.username, nh.password)
+	//opts = append(opts, userCreds)
+	natsUrl := fmt.Sprintf("%s", nh.url)
 
 
 	// Connect to NATS
