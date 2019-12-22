@@ -12,6 +12,7 @@ type StartTestSuitePub struct {
 	Url         string    `json:"url"`
 	Tests       []string  `json:"tests"`
 	Timestamp   time.Time `json:"timestamp"`
+	UserID      string    `json:"user_id"`
 }
 
 func (msg *StartTestSuitePub) Print() string {
@@ -19,16 +20,16 @@ func (msg *StartTestSuitePub) Print() string {
 }
 
 type TestFinishedPub struct {
-	TestSuiteID string `json:"test_suite_id"`
-	Result status.TestStatus `json:"result"`
-	TestCode string `json:"test_code"`
-	Timestamp time.Time `json:"timestamp"`
-	
+	TestSuiteID string            `json:"test_suite_id"`
+	Result      status.TestStatus `json:"result"`
+	TestCode    string            `json:"test_code"`
+	Timestamp   time.Time         `json:"timestamp"`
 }
 
 type TestSuiteFinishedPub struct {
-	TestSuiteID string    `json:"test_suite_id"`
-	Url         string    `json:"url"`
-	Tests       []TestFinishedPub  `json:"tests"`
-	Timestamp   time.Time `json:"timestamp"`
+	TestSuiteID string            `json:"test_suite_id"`
+	Url         string            `json:"url"`
+	Tests       []TestFinishedPub `json:"tests"`
+	Timestamp   time.Time         `json:"timestamp"`
+	UserID      string            `json:"user_id"`
 }

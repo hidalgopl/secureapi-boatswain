@@ -11,6 +11,16 @@ import (
 	"github.com/hidalgopl/secureapi-boatswain/internal/status"
 )
 
+var (
+	FingerPrintHeaders = []string{
+		"x-powered-by",
+		"x-generator",
+		"server",
+		"x-aspnet-version",
+		"x-aspnetmvc-version",
+	}
+)
+
 type TestChan struct {
 	Result   status.TestStatus `json:"result"`
 	TestCode string            `json:"test_code"`
@@ -19,9 +29,9 @@ type TestChan struct {
 func NotifyCheckFinished(testSuiteID string, testCode string, status status.TestStatus, resultChan chan messages.TestFinishedPub, publisher publisher.Publisher) error {
 	msg := &messages.TestFinishedPub{
 		TestSuiteID: testSuiteID,
-		Result:    status,
-		TestCode:  testCode,
-		Timestamp: time.Now(),
+		Result:      status,
+		TestCode:    testCode,
+		Timestamp:   time.Now(),
 	}
 	logrus.Infof("[%s] %s finished with %v, publishing results...", testSuiteID, testCode, status)
 	resultChan <- *msg
@@ -100,6 +110,23 @@ func ContentSecurityPolicy(testSuiteID string, headers http.Header, resultChan c
 	return nil
 }
 
+func DetectFingerprintHeaders(testSuiteID string, headers http.Header, resultChan chan messages.TestFinishedPub, publisher publisher.Publisher) error {
+	var Status status.TestStatus
+	testCode := "SEC#0005"
+	Status = status.Passed
+	for _, key := range FingerPrintHeaders {
+		if _, ok := headers[key]; ok {
+			Status = status.Failed
+		}
+	}
+	err := NotifyCheckFinished(testSuiteID, testCode, Status, resultChan, publisher)
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+
 //func OptionsRequestNotAllowed(url string, headers http.Header, resultChan chan TestChan, publisher publisher.Publisher) error {
 //	var Status string
 //	requestBody, _ := json.Marshal(map[string]string{})
@@ -131,6 +158,7 @@ var (
 		"SEC#0002": XFrameOptionsDeny,
 		"SEC#0003": XXSSProtection,
 		"SEC#0004": ContentSecurityPolicy,
+		"SEC#0005": DetectFingerprintHeaders,
 		//"SEC#0005": OptionsRequestNotAllowed,
 	}
 )
