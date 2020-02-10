@@ -94,7 +94,7 @@ func (nh *NatsListener) HandleTestSuite(msg *messages.StartTestSuitePub) {
 	}
 	logrus.Info("start scheduling checks:")
 	for ind, testCode := range msg.Tests {
-		subject := fmt.Sprintf("test_suite.%s.test.%s.started", testSuiteUID, ind)
+		subject := fmt.Sprintf("test_suite.%s.test.%v.started", testSuiteUID, ind)
 		pub := publisher.NewNatsPublisher(conf, subject)
 		go func(testCode string) {
 			// handle if someone sends wrong testCode

@@ -15,7 +15,7 @@ type Config struct {
 
 func (c *Config) PrettyPrint() string {
 	configStr := fmt.Sprintf(
-		"username: %s \naccess_key: <hidden> \nurl: %s \ntests: %s", c.NatsUsername, c.NatsUrl, c.NatsQueueName, c.NatsCreatedSubject)
+		"username: %s \naccess_key: <hidden> \nurl: %s \ntests: %s %s", c.NatsUsername, c.NatsUrl, c.NatsQueueName, c.NatsCreatedSubject)
 	return configStr
 }
 

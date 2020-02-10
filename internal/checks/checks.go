@@ -48,7 +48,7 @@ func NotifyCheckFinished(testSuiteID string, testCode string, status status.Test
 
 func XContentTypeOptionsNoSniff(testSuiteID string, headers http.Header, resultChan chan messages.TestFinishedPub, publisher publisher.Publisher) error {
 	var Status status.TestStatus
-	testCode := "SEC#0001"
+	testCode := "SEC0001"
 	header := headers.Get("X-Content-Type-Options")
 	if header == "nosniff" {
 		Status = status.Passed
@@ -64,7 +64,7 @@ func XContentTypeOptionsNoSniff(testSuiteID string, headers http.Header, resultC
 
 func XFrameOptionsDeny(testSuiteID string, headers http.Header, resultChan chan messages.TestFinishedPub, publisher publisher.Publisher) error {
 	var Status status.TestStatus
-	testCode := "SEC#0002"
+	testCode := "SEC0002"
 	header := headers.Get("X-Frame-Options")
 	if header == "deny" {
 		Status = status.Passed
@@ -80,7 +80,7 @@ func XFrameOptionsDeny(testSuiteID string, headers http.Header, resultChan chan 
 
 func XXSSProtection(testSuiteID string, headers http.Header, resultChan chan messages.TestFinishedPub, publisher publisher.Publisher) error {
 	var Status status.TestStatus
-	testCode := "SEC#0003"
+	testCode := "SEC0003"
 	header := headers.Get("X-XSS-Protection")
 	if header == "1" || header == "1; mode=block" {
 		Status = status.Passed
@@ -96,7 +96,7 @@ func XXSSProtection(testSuiteID string, headers http.Header, resultChan chan mes
 
 func ContentSecurityPolicy(testSuiteID string, headers http.Header, resultChan chan messages.TestFinishedPub, publisher publisher.Publisher) error {
 	var Status status.TestStatus
-	testCode := "SEC#0004"
+	testCode := "SEC0004"
 	header := headers.Get("Content-Security-Policy")
 	if header == "default-src 'none'" {
 		Status = status.Passed
@@ -112,7 +112,7 @@ func ContentSecurityPolicy(testSuiteID string, headers http.Header, resultChan c
 
 func DetectFingerprintHeaders(testSuiteID string, headers http.Header, resultChan chan messages.TestFinishedPub, publisher publisher.Publisher) error {
 	var Status status.TestStatus
-	testCode := "SEC#0005"
+	testCode := "SEC0005"
 	Status = status.Passed
 	for _, key := range FingerPrintHeaders {
 		if _, ok := headers[key]; ok {
@@ -154,11 +154,11 @@ func DetectFingerprintHeaders(testSuiteID string, headers http.Header, resultCha
 
 var (
 	TestCodes = map[string]func(string, http.Header, chan messages.TestFinishedPub, publisher.Publisher) error{
-		"SEC#0001": XContentTypeOptionsNoSniff,
-		"SEC#0002": XFrameOptionsDeny,
-		"SEC#0003": XXSSProtection,
-		"SEC#0004": ContentSecurityPolicy,
-		"SEC#0005": DetectFingerprintHeaders,
+		"SEC0001": XContentTypeOptionsNoSniff,
+		"SEC0002": XFrameOptionsDeny,
+		"SEC0003": XXSSProtection,
+		"SEC0004": ContentSecurityPolicy,
+		"SEC0005": DetectFingerprintHeaders,
 		//"SEC#0005": OptionsRequestNotAllowed,
 	}
 )
