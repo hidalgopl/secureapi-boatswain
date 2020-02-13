@@ -176,6 +176,22 @@ func SetCookieSecureHttpOnly(testSuiteID string, headers http.Header, resultChan
 	return nil
 }
 
+func CacheControlOrExpires(testSuiteID string, headers http.Header, resultChan chan messages.TestFinishedPub, publisher publisher.Publisher) error {
+	var Status status.TestStatus
+	testCode := "SEC0009"
+	Status = status.Passed
+	headerCacheControl := headers.Get("Cache-Control")
+	headerExpires := headers.Get("Expires")
+	if headerCacheControl + headerExpires == "" {
+		Status = status.Failed
+	}
+	err := NotifyCheckFinished(testSuiteID, testCode, Status, resultChan, publisher)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 //func OptionsRequestNotAllowed(url string, headers http.Header, resultChan chan TestChan, publisher publisher.Publisher) error {
 //	var Status string
 //	requestBody, _ := json.Marshal(map[string]string{})
@@ -211,6 +227,7 @@ var (
 		"SEC0006": CORSconfigured,
 		"SEC0007": StrictTransportSecurity,
 		"SEC0008": SetCookieSecureHttpOnly,
+		"SEC0009": CacheControlOrExpires,
 		//"SEC#0005": OptionsRequestNotAllowed,
 	}
 )

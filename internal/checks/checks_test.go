@@ -187,6 +187,7 @@ func TestCORSconfigured(t *testing.T) {
 		})
 	}
 }
+
 func TestStrictTransportSecurity(t *testing.T) {
 	tt := []struct {
 		testName    string
@@ -213,6 +214,7 @@ func TestStrictTransportSecurity(t *testing.T) {
 		})
 	}
 }
+
 func TestSetCookieSecureHttpOnly(t *testing.T) {
 	tt := []struct {
 		testName    string
@@ -233,6 +235,53 @@ func TestSetCookieSecureHttpOnly(t *testing.T) {
 		t.Run(tc.testName, func(t *testing.T) {
 			resultChan := make(chan messages.TestFinishedPub, 1)
 			err := SetCookieSecureHttpOnly("doesnt-matter", tc.headers, resultChan, mp)
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expectedRes, mp.Result)
+			close(resultChan)
+		})
+	}
+}
+
+func TestCacheControlOrExpires(t *testing.T) {
+	tt := []struct {
+		testName    string
+		headers     map[string][]string
+		expectedErr bool
+		expectedRes status.TestStatus
+	}{
+		{
+			testName: "happy path",
+			headers: http.Header{},
+			expectedRes: status.Failed,
+		},
+		{
+			testName: "only Expires",
+			headers: http.Header{
+				"Expires": {"0"},
+			},
+			expectedRes: status.Passed,
+		},
+		{
+			testName: "only Cache-Control",
+			headers: http.Header{
+				"Cache-Control": {"max-age=480"},
+			},
+			expectedRes: status.Passed,
+		},
+		{
+			testName: "empty Cache-Control and Expires",
+			headers: http.Header{
+				"Cache-Control": {""},
+				"Expires": {""},
+			},
+			expectedRes: status.Failed,
+		},
+	}
+	mp := &MockPublisher{}
+	for _, tc := range tt {
+		t.Run(tc.testName, func(t *testing.T) {
+			resultChan := make(chan messages.TestFinishedPub, 1)
+			err := CacheControlOrExpires("doesnt-matter", tc.headers, resultChan, mp)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expectedRes, mp.Result)
 			close(resultChan)
