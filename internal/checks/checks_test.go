@@ -39,7 +39,6 @@ func TestXContentTypeOptionsNoSniff(t *testing.T) {
 			},
 			expectedRes: status.Passed,
 		},
-
 	}
 	mp := &MockPublisher{}
 	for _, tc := range tt {
@@ -67,7 +66,6 @@ func TestXFrameOptionsDeny(t *testing.T) {
 			},
 			expectedRes: status.Passed,
 		},
-
 	}
 	mp := &MockPublisher{}
 	for _, tc := range tt {
@@ -95,7 +93,6 @@ func TestXXSSProtection(t *testing.T) {
 			},
 			expectedRes: status.Passed,
 		},
-
 	}
 	for _, tc := range tt {
 		mp := &MockPublisher{}
@@ -124,7 +121,6 @@ func TestContentSecurityPolicy(t *testing.T) {
 			},
 			expectedRes: status.Passed,
 		},
-
 	}
 	mp := &MockPublisher{}
 	for _, tc := range tt {
@@ -152,13 +148,91 @@ func TestDetectFingerprintHeaders(t *testing.T) {
 			},
 			expectedRes: status.Failed,
 		},
-
 	}
 	mp := &MockPublisher{}
 	for _, tc := range tt {
 		t.Run(tc.testName, func(t *testing.T) {
 			resultChan := make(chan messages.TestFinishedPub, 1)
 			err := DetectFingerprintHeaders("doesnt-matter", tc.headers, resultChan, mp)
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expectedRes, mp.Result)
+			close(resultChan)
+		})
+	}
+}
+
+func TestCORSconfigured(t *testing.T) {
+	tt := []struct {
+		testName    string
+		headers     map[string][]string
+		expectedErr bool
+		expectedRes status.TestStatus
+	}{
+		{
+			testName: "happy path",
+			headers: http.Header{
+				"Access-Control-Allow-Origin": {"*"},
+			},
+			expectedRes: status.Failed,
+		},
+	}
+	mp := &MockPublisher{}
+	for _, tc := range tt {
+		t.Run(tc.testName, func(t *testing.T) {
+			resultChan := make(chan messages.TestFinishedPub, 1)
+			err := CORSconfigured("doesnt-matter", tc.headers, resultChan, mp)
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expectedRes, mp.Result)
+			close(resultChan)
+		})
+	}
+}
+func TestStrictTransportSecurity(t *testing.T) {
+	tt := []struct {
+		testName    string
+		headers     map[string][]string
+		expectedErr bool
+		expectedRes status.TestStatus
+	}{
+		{
+			testName: "happy path",
+			headers: http.Header{
+				"Strict-Transport-Security": {"max-age=3600; includeSubDomains"},
+			},
+			expectedRes: status.Passed,
+		},
+	}
+	mp := &MockPublisher{}
+	for _, tc := range tt {
+		t.Run(tc.testName, func(t *testing.T) {
+			resultChan := make(chan messages.TestFinishedPub, 1)
+			err := StrictTransportSecurity("doesnt-matter", tc.headers, resultChan, mp)
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expectedRes, mp.Result)
+			close(resultChan)
+		})
+	}
+}
+func TestSetCookieSecureHttpOnly(t *testing.T) {
+	tt := []struct {
+		testName    string
+		headers     map[string][]string
+		expectedErr bool
+		expectedRes status.TestStatus
+	}{
+		{
+			testName: "happy path",
+			headers: http.Header{
+				"Set-Cookie": {"cookie-without-secureandhttponly"},
+			},
+			expectedRes: status.Failed,
+		},
+	}
+	mp := &MockPublisher{}
+	for _, tc := range tt {
+		t.Run(tc.testName, func(t *testing.T) {
+			resultChan := make(chan messages.TestFinishedPub, 1)
+			err := SetCookieSecureHttpOnly("doesnt-matter", tc.headers, resultChan, mp)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expectedRes, mp.Result)
 			close(resultChan)

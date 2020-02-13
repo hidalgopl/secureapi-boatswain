@@ -6,6 +6,7 @@ import (
 	"github.com/hidalgopl/secureapi-boatswain/internal/publisher"
 	"github.com/sirupsen/logrus"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/hidalgopl/secureapi-boatswain/internal/status"
@@ -127,6 +128,54 @@ func DetectFingerprintHeaders(testSuiteID string, headers http.Header, resultCha
 
 }
 
+func CORSconfigured(testSuiteID string, headers http.Header, resultChan chan messages.TestFinishedPub, publisher publisher.Publisher) error {
+	var Status status.TestStatus
+	testCode := "SEC0006"
+	Status = status.Passed
+	header := headers.Get("Access-Control-Allow-Origin")
+	if header == "*" {
+		Status = status.Failed
+	}
+	err := NotifyCheckFinished(testSuiteID, testCode, Status, resultChan, publisher)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func StrictTransportSecurity(testSuiteID string, headers http.Header, resultChan chan messages.TestFinishedPub, publisher publisher.Publisher) error {
+	var Status status.TestStatus
+	testCode := "SEC0007"
+	Status = status.Passed
+	header := headers.Get("Strict-Transport-Security")
+	if header != "max-age=3600; includeSubDomains" {
+		Status = status.Failed
+	}
+	err := NotifyCheckFinished(testSuiteID, testCode, Status, resultChan, publisher)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func SetCookieSecureHttpOnly(testSuiteID string, headers http.Header, resultChan chan messages.TestFinishedPub, publisher publisher.Publisher) error {
+	var Status status.TestStatus
+	testCode := "SEC0008"
+	Status = status.Passed
+	header := headers.Get("Set-Cookie")
+	if !strings.Contains(header, "Secure") {
+		Status = status.Failed
+	}
+	if !strings.Contains(header, "HttpOnly") {
+		Status = status.Failed
+	}
+	err := NotifyCheckFinished(testSuiteID, testCode, Status, resultChan, publisher)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 //func OptionsRequestNotAllowed(url string, headers http.Header, resultChan chan TestChan, publisher publisher.Publisher) error {
 //	var Status string
 //	requestBody, _ := json.Marshal(map[string]string{})
@@ -159,6 +208,9 @@ var (
 		"SEC0003": XXSSProtection,
 		"SEC0004": ContentSecurityPolicy,
 		"SEC0005": DetectFingerprintHeaders,
+		"SEC0006": CORSconfigured,
+		"SEC0007": StrictTransportSecurity,
+		"SEC0008": SetCookieSecureHttpOnly,
 		//"SEC#0005": OptionsRequestNotAllowed,
 	}
 )
