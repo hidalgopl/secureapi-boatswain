@@ -78,27 +78,17 @@ func (nh *NatsListener) QueueSub(ec *nats.EncodedConn) {
 func (nh *NatsListener) HandleTestSuite(msg *messages.StartTestSuitePub) {
 	log.Printf("Got msg: %s", msg.Print())
 	testSuiteUID := msg.TestSuiteID
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
 	conf := config.GetConf()
-	client := &http.Client{Transport: tr}
 	logrus.Infof("creating result chan  with len: %v", len(msg.Tests))
 	resultChan := make(chan messages.TestFinishedPub, len(msg.Tests))
 	logrus.Infof("sending http req to: %s", msg.Url)
-	r, err := client.Get(msg.Url)
-	defer r.Body.Close()
-	if err != nil {
-		panic(err)
-		// TODO
-	}
 	logrus.Info("start scheduling checks:")
 	for ind, testCode := range msg.Tests {
 		subject := fmt.Sprintf("test_suite.%s.test.%v.started", testSuiteUID, ind)
 		pub := publisher.NewNatsPublisher(conf, subject)
 		go func(testCode string) {
 			// handle if someone sends wrong testCode
-			checks.TestCodes[testCode](testSuiteUID, r.Header, resultChan, pub)
+			checks.TestCodes[testCode](testSuiteUID, msg.Headers, resultChan, pub)
 		}(testCode)
 
 	}

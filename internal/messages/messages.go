@@ -3,6 +3,7 @@ package messages
 import (
 	"fmt"
 	"github.com/hidalgopl/secureapi-boatswain/internal/status"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -13,6 +14,8 @@ type StartTestSuitePub struct {
 	Tests       []string  `json:"tests"`
 	Timestamp   time.Time `json:"timestamp"`
 	UserID      string    `json:"user_id"`
+	Headers     http.Header `json:"headers"`
+	Cookies     http.Cookie `json:"cookies"`
 }
 
 func (msg *StartTestSuitePub) Print() string {
