@@ -1,7 +1,6 @@
 package listener
 
 import (
-	"crypto/tls"
 	"fmt"
 	"github.com/hidalgopl/secureapi-boatswain/internal/checks"
 	"github.com/hidalgopl/secureapi-boatswain/internal/config"
@@ -10,8 +9,6 @@ import (
 	"github.com/hidalgopl/secureapi-boatswain/internal/publisher"
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
-	"log"
-	"net/http"
 	"os"
 	"os/signal"
 	"time"
@@ -43,12 +40,11 @@ func Listen(conf *config.Config) error {
 	nh := NewNatsListener(conf)
 	ec, err := nh.Connect()
 	if err != nil {
-		log.Fatal(err)
+		logrus.Error(err)
 		return err
 	}
 	nh.QueueSub(ec)
 	return nil
-	//defer ec.Close()
 
 }
 
@@ -59,24 +55,23 @@ func (nh *NatsListener) QueueSub(ec *nats.EncodedConn) {
 	defer ec.Close()
 
 	if err := ec.LastError(); err != nil {
-		log.Fatal(err)
+		logrus.Error(err)
 	}
 
-	log.Printf("Listening on [%s] in queue [%s]", nh.Subject, nh.QueueName)
+	logrus.Infof("Listening on [%s] in queue [%s]", nh.Subject, nh.QueueName)
 
 	// Setup the interrupt handler to drain so we don't miss
 	// requests when scaling down.
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	<-c
-	log.Println()
-	log.Printf("Draining...")
+	logrus.Info("Draining...")
 	ec.Drain()
-	log.Fatalf("Exiting")
+	logrus.Info("Exiting")
 }
 
 func (nh *NatsListener) HandleTestSuite(msg *messages.StartTestSuitePub) {
-	log.Printf("Got msg: %s", msg.Print())
+	logrus.Debugf("Got msg: %s", msg.Print())
 	testSuiteUID := msg.TestSuiteID
 	conf := config.GetConf()
 	logrus.Infof("creating result chan  with len: %v", len(msg.Tests))
@@ -87,7 +82,6 @@ func (nh *NatsListener) HandleTestSuite(msg *messages.StartTestSuitePub) {
 		subject := fmt.Sprintf("test_suite.%s.test.%v.started", testSuiteUID, ind)
 		pub := publisher.NewNatsPublisher(conf, subject)
 		go func(testCode string) {
-			// handle if someone sends wrong testCode
 			checks.TestCodes[testCode](testSuiteUID, msg.Headers, resultChan, pub)
 		}(testCode)
 
@@ -96,7 +90,6 @@ func (nh *NatsListener) HandleTestSuite(msg *messages.StartTestSuitePub) {
 	tests := []messages.TestFinishedPub{}
 	for range msg.Tests {
 		tests = append(tests, <-resultChan)
-		//fmt.Println(<-resultChan)
 	}
 	close(resultChan)
 	finishedSubject := fmt.Sprintf("test_suite.%s.completed", testSuiteUID)
@@ -111,7 +104,7 @@ func (nh *NatsListener) HandleTestSuite(msg *messages.StartTestSuitePub) {
 		UserID:      msg.UserID,
 	}
 	logrus.Infof("created finish msg: %v", finishedMsg)
-	err = pub.Publish(finishedMsg, finishedSubject)
+	err := pub.Publish(finishedMsg, finishedSubject)
 
 	if err != nil {
 		logrus.Error(err)

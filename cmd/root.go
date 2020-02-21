@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/hidalgopl/secureapi-boatswain/internal/config"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
@@ -18,7 +18,7 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		logrus.Error(err)
 		os.Exit(1)
 	}
 }
@@ -45,10 +45,10 @@ func initConfig() {
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Printf("unable to read config: %v\n", err)
+		logrus.Errorf("unable to read config: %v\n", err)
 		os.Exit(1)
 	}
 	conf := config.GetConf()
-	fmt.Printf("running with config: %v", conf)
+	logrus.Infof("running with config: %v", conf)
 
 }

@@ -1,4 +1,0 @@
-nfsServer:
-  enabled: true
-  host: ''
-storage: 'rook-block'

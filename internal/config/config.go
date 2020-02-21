@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -22,12 +23,12 @@ func (c *Config) PrettyPrint() string {
 func GetConf() *Config {
 	err := viper.ReadInConfig()
 	if err != nil {
-		fmt.Printf("%v", err)
+		logrus.Error(err)
 	}
 	conf := &Config{}
 	err = viper.Unmarshal(conf)
 	if err != nil {
-		fmt.Printf("unable to decode into config struct, %v", err)
+		logrus.Errorf("unable to decode into config struct, %v", err)
 	}
 	return conf
 }

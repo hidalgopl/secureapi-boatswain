@@ -34,9 +34,9 @@ func NotifyCheckFinished(testSuiteID string, testCode string, status status.Test
 		TestCode:    testCode,
 		Timestamp:   time.Now(),
 	}
-	logrus.Infof("[%s] %s finished with %v, publishing results...", testSuiteID, testCode, status)
+	logrus.Debugf("[%s] %s finished with %v, publishing results...", testSuiteID, testCode, status)
 	resultChan <- *msg
-	logrus.Info("Pushed info to channel")
+	logrus.Debug("Pushed info to channel")
 	finishedSubject := fmt.Sprintf("test_suite.%s.test.%s.finished", testSuiteID, testCode)
 	err := publisher.Publish(msg, finishedSubject)
 	if err != nil {
@@ -182,7 +182,7 @@ func CacheControlOrExpires(testSuiteID string, headers http.Header, resultChan c
 	Status = status.Passed
 	headerCacheControl := headers.Get("Cache-Control")
 	headerExpires := headers.Get("Expires")
-	if headerCacheControl + headerExpires == "" {
+	if headerCacheControl+headerExpires == "" {
 		Status = status.Failed
 	}
 	err := NotifyCheckFinished(testSuiteID, testCode, Status, resultChan, publisher)
@@ -191,31 +191,6 @@ func CacheControlOrExpires(testSuiteID string, headers http.Header, resultChan c
 	}
 	return nil
 }
-
-//func OptionsRequestNotAllowed(url string, headers http.Header, resultChan chan TestChan, publisher publisher.Publisher) error {
-//	var Status string
-//	requestBody, _ := json.Marshal(map[string]string{})
-//	body := bytes.NewBuffer(requestBody)
-//	req, err := http.NewRequest(http.MethodOptions, url, body)
-//	client := &http.Client{}
-//	resp, err := client.Do(req)
-//	if err != nil {
-//		Status = status.Error
-//	} else {
-//		if resp.StatusCode == http.StatusMethodNotAllowed {
-//			Status = status.Passed
-//		} else {
-//			Status = status.Failed
-//		}
-//	}
-//	result := TestChan{
-//		Result:   Status,
-//		TestCode: "SEC#0005",
-//	}
-//	resultChan <- result
-//	return nil
-//
-//}
 
 var (
 	TestCodes = map[string]func(string, http.Header, chan messages.TestFinishedPub, publisher.Publisher) error{
@@ -228,6 +203,5 @@ var (
 		"SEC0007": StrictTransportSecurity,
 		"SEC0008": SetCookieSecureHttpOnly,
 		"SEC0009": CacheControlOrExpires,
-		//"SEC#0005": OptionsRequestNotAllowed,
 	}
 )

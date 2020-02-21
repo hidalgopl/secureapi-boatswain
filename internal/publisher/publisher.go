@@ -4,7 +4,6 @@ import (
 	"github.com/hidalgopl/secureapi-boatswain/internal/config"
 	"github.com/hidalgopl/secureapi-boatswain/internal/conn"
 	"github.com/sirupsen/logrus"
-	"log"
 )
 
 type Publisher interface {
@@ -28,7 +27,7 @@ func NewNatsPublisher(conf *config.Config, subject string) *NatsPublisher {
 func (np *NatsPublisher) Publish(msg interface{}, subject string) error {
 	ec, err := np.Connect()
 	if err != nil {
-		log.Fatal(err)
+		logrus.Error(err)
 		return err
 	}
 	logrus.Infof("publishing to: %s", subject)
