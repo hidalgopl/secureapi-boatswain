@@ -6,6 +6,7 @@ require (
 	github.com/nats-io/nats-server/v2 v2.1.0 // indirect
 	github.com/nats-io/nats.go v1.9.1
 	github.com/pkg/errors v0.8.1
+	github.com/rollbar/rollbar-go v1.2.0
 	github.com/rs/xid v1.2.1
 	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/cobra v0.0.5

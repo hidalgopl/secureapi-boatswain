@@ -4,6 +4,7 @@ import (
 	"github.com/hidalgopl/secureapi-boatswain/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/rollbar/rollbar-go"
 	"github.com/spf13/viper"
 	"os"
 )
@@ -15,12 +16,20 @@ var rootCmd = &cobra.Command{
 		cmd.Usage()
 	},
 }
-
-func Execute() {
+func main() {
 	if err := rootCmd.Execute(); err != nil {
 		logrus.Error(err)
 		os.Exit(1)
 	}
+}
+
+func Execute() {
+	conf := config.GetConf()
+	rollbar.SetToken(conf.RollbarToken)
+	rollbar.SetEnvironment("production")
+	//rollbar.SetCodeVersion("")
+	rollbar.WrapAndWait(main)
+
 }
 
 var configFile string

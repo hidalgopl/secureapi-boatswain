@@ -7,11 +7,12 @@ import (
 )
 
 type Config struct {
-	NatsUsername       string `yaml: natsUsername`
-	NatsUrl            string `yaml:natsUrl`
-	NatsPass           string `yaml: natsPass`
-	NatsCreatedSubject string `yaml: natsCreatedSubject`
-	NatsQueueName      string `yaml: natsQueueName`
+	NatsUsername       string `yaml:"natsUsername"`
+	NatsUrl            string `yaml:"natsUrl"`
+	NatsPass           string `yaml:"natsPass"`
+	NatsCreatedSubject string `yaml:"natsCreatedSubject"`
+	NatsQueueName      string `yaml:"natsQueueName"`
+	RollbarToken       string `yaml:"rollbarToken"`
 }
 
 func (c *Config) PrettyPrint() string {
