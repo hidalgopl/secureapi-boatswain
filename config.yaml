@@ -1,7 +1,4 @@
-natsUsername: ''
 natsUrl: ''
-natsPass: ''
 natsCreatedSubject: ''
 natsQueueName: ''
 rollbarToken: ''
-

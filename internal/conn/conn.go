@@ -1,7 +1,6 @@
 package conn
 
 import (
-	"fmt"
 	"github.com/hidalgopl/secureapi-boatswain/internal/config"
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
@@ -9,8 +8,6 @@ import (
 )
 
 type NatsHandler struct {
-	username       string
-	password       string
 	url            string
 	totalWait      time.Duration
 	reconnectDelay time.Duration
@@ -35,10 +32,9 @@ func (nh *NatsHandler) setupConnOptions(opts []nats.Option) []nats.Option {
 func (nh *NatsHandler) Connect() (*nats.EncodedConn, error) {
 	opts := []nats.Option{nats.Name("NATS Sample Queue Subscriber")}
 	opts = nh.setupConnOptions(opts)
-	natsUrl := fmt.Sprintf("%s", nh.url)
 	// Connect to NATS
-	logrus.Infof("trying to connect to nats on %s", natsUrl)
-	nc, err := nats.Connect(natsUrl, opts...)
+	logrus.Infof("trying to connect to nats on %s", nh.url)
+	nc, err := nats.Connect(nh.url, opts...)
 	if err != nil {
 		logrus.Error(err)
 		return &nats.EncodedConn{}, err
@@ -53,8 +49,6 @@ func (nh *NatsHandler) Connect() (*nats.EncodedConn, error) {
 
 func NewNatsHandler(conf *config.Config) *NatsHandler {
 	conn := &NatsHandler{
-		username:       conf.NatsUsername,
-		password:       conf.NatsPass,
 		url:            conf.NatsUrl,
 		totalWait:      10 * time.Minute,
 		reconnectDelay: time.Second,
