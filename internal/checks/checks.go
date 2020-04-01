@@ -67,7 +67,7 @@ func XFrameOptionsDeny(testSuiteID string, headers http.Header, resultChan chan 
 	var Status status.TestStatus
 	testCode := "SEC0002"
 	header := headers.Get("X-Frame-Options")
-	if header == "deny" {
+	if header == "deny" || header == "sameorigin"{
 		Status = status.Passed
 	} else {
 		Status = status.Failed
@@ -99,7 +99,7 @@ func ContentSecurityPolicy(testSuiteID string, headers http.Header, resultChan c
 	var Status status.TestStatus
 	testCode := "SEC0004"
 	header := headers.Get("Content-Security-Policy")
-	if header == "default-src 'none'" {
+	if header != "" {
 		Status = status.Passed
 	} else {
 		Status = status.Failed
@@ -148,7 +148,8 @@ func StrictTransportSecurity(testSuiteID string, headers http.Header, resultChan
 	testCode := "SEC0007"
 	Status = status.Passed
 	header := headers.Get("Strict-Transport-Security")
-	if header != "max-age=3600; includeSubDomains" {
+	properlySet := strings.Contains(header, "max-age=")
+	if !properlySet {
 		Status = status.Failed
 	}
 	err := NotifyCheckFinished(testSuiteID, testCode, Status, resultChan, publisher)
