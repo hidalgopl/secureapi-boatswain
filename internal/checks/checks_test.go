@@ -236,6 +236,11 @@ func TestSetCookieSecureHttpOnly(t *testing.T) {
 			},
 			expectedRes: status.Failed,
 		},
+		{
+			testName: "happy path#2",
+			headers: http.Header{},
+			expectedRes: status.Passed,
+		},
 	}
 	mp := &MockPublisher{}
 	for _, tc := range tt {

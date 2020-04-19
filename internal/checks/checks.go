@@ -171,6 +171,9 @@ func SetCookieSecureHttpOnly(testSuiteID string, headers http.Header, resultChan
 	if !strings.Contains(header, "HttpOnly") {
 		Status = status.Failed
 	}
+	if header == "" {
+		Status = status.Passed
+	}
 	err := NotifyCheckFinished(testSuiteID, testCode, Status, resultChan, publisher)
 	if err != nil {
 		return err
