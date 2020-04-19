@@ -66,6 +66,13 @@ func TestXFrameOptionsDeny(t *testing.T) {
 			},
 			expectedRes: status.Passed,
 		},
+		{
+			testName: "happy path#2",
+			headers: http.Header{
+				textproto.CanonicalMIMEHeaderKey("X-Frame-Options"): {"DENY"},
+			},
+			expectedRes: status.Passed,
+		},
 	}
 	mp := &MockPublisher{}
 	for _, tc := range tt {

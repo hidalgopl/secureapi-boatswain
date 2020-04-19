@@ -67,6 +67,7 @@ func XFrameOptionsDeny(testSuiteID string, headers http.Header, resultChan chan 
 	var Status status.TestStatus
 	testCode := "SEC0002"
 	header := headers.Get("X-Frame-Options")
+	header = strings.ToLower(header)
 	if header == "deny" || header == "sameorigin"{
 		Status = status.Passed
 	} else {
