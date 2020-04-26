@@ -9,13 +9,13 @@ import (
 )
 
 type StartTestSuitePub struct {
-	TestSuiteID string    `json:"test_suite_id"`
-	Url         string    `json:"url"`
-	Tests       []string  `json:"tests"`
-	Timestamp   time.Time `json:"timestamp"`
-	UserID      string    `json:"user_id"`
+	TestSuiteID string      `json:"test_suite_id"`
+	Url         string      `json:"url"`
+	Tests       []string    `json:"tests"`
+	Timestamp   time.Time   `json:"timestamp"`
+	UserID      string      `json:"user_id"`
 	Headers     http.Header `json:"headers"`
-	Cookies     http.Cookie `json:"cookies"`
+	Origin      string      `json:"origin"`
 }
 
 func (msg *StartTestSuitePub) Print() string {
@@ -35,4 +35,5 @@ type TestSuiteFinishedPub struct {
 	Tests       []TestFinishedPub `json:"tests"`
 	Timestamp   time.Time         `json:"timestamp"`
 	UserID      string            `json:"user_id"`
+	Origin      string            `json:"origin"`
 }

@@ -102,6 +102,7 @@ func (nh *NatsListener) HandleTestSuite(msg *messages.StartTestSuitePub) {
 		TestSuiteID: testSuiteUID,
 		Url:         msg.Url,
 		UserID:      msg.UserID,
+		Origin:      msg.Origin,
 	}
 	logrus.Infof("created finish msg: %v", finishedMsg)
 	err := pub.Publish(finishedMsg, finishedSubject)
