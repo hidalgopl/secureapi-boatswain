@@ -32,31 +32,14 @@ func Execute() {
 
 }
 
-var configFile string
-
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().StringVar(
-		&configFile, "config", "", "config file (default is config.yaml)")
 }
 
 func initConfig() {
-	if configFile != "" {
-		viper.SetConfigFile(configFile)
-	} else {
-		viper.SetConfigName("config")
-		viper.AddConfigPath(".")
-		viper.AddConfigPath("/etc/sailor")
-		viper.AddConfigPath("$HOME/.sailor")
-	}
 	viper.SetEnvPrefix("boatswain")
 	//viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
-
-	if err := viper.ReadInConfig(); err != nil {
-		logrus.Errorf("unable to read config: %v\n", err)
-		os.Exit(1)
-	}
 	conf := config.GetConf()
 	logrus.Infof("running with config: %v", conf)
 
