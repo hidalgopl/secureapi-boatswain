@@ -34,17 +34,22 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            - name: NATS_CREATED_SUBJECT
+            - name: BOATSWAIN_NATS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: boatswain
+                  key: nats-url
+            - name: BOATSWAIN_NATS_CREATED_SUBJECT
               valueFrom:
                 configMapKeyRef:
                   name: boatswain
                   key: created-subject
-            - name: NATS_QUEUE_NAME
+            - name: BOATSWAIN_NATS_QUEUE_NAME
               valueFrom:
                 configMapKeyRef:
                   name: boatswain
                   key: queue-name
-            - name: ROLLBAR_TOKEN
+            - name: BOATSWAIN_ROLLBAR_TOKEN
               valueFrom:
                 configMapKeyRef:
                   name: boatswain

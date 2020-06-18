@@ -8,7 +8,7 @@ image:
   repository: secureapi/boatswain
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  tag: "bba2d21a386e9ebbc42264d8f2ef67d7abba1bbd"
 
 imagePullSecrets:
   - name: "regcred"
